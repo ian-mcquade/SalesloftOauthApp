@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session, url_for, render_template
+from flask import Flask, redirect, request, session
 import requests
 import csv
 import io
@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv 
 
 load_dotenv()
+
 
 my_secret_key = os.environ.get('s_key')
 
