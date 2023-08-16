@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session
+from flask import Flask, redirect, request, session, url_for
 import requests
 import csv
 import io
@@ -39,7 +39,11 @@ def callback():
     print('Scope:',scope)
     session['access_token'] = token_data['access_token']
     session['refresh_token'] = token_data['refresh_token']
-    return f"Access Token: {token_data['access_token']}<br>Refresh Token: {token_data['refresh_token']}"
+    return  f'<a href="{url_for("account_upload_csv")}">Account CSV Upload</a>'
+            #f"Access Token: {token_data['access_token']}<br>"
+            #f"Refresh Token: {token_data['refresh_token']}<br>"
+            
+
 
 
 def get_tokens(code, context, scope):
