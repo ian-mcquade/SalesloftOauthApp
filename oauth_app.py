@@ -41,14 +41,8 @@ def callback():
     session['refresh_token'] = token_data['refresh_token']
     return  (f'<a href="{url_for("account_upload_csv")}">Account CSV Upload</a></br>'
              f'<a href="{url_for("contact_upload_csv")}">Contact CSV Upload </a>')
+        
             
-            
-            #f"Access Token: {token_data['access_token']}<br>"
-            #f"Refresh Token: {token_data['refresh_token']}<br>"
-            
-
-
-
 def get_tokens(code, context, scope):
     token_url = "https://accounts.salesloft.com/oauth/token"
     payload = {
