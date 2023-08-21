@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session, url_for
+from flask import Flask, redirect, request, session, url_for, jsonify
 import requests
 import csv
 import io
@@ -121,6 +121,7 @@ def upsert_form():
 
 @app.route('/account_upload_csv', methods=['GET', 'POST'])
 def account_upload_csv():
+   
     sf_ids = [] #list of Salesforce id's that will be returned that were succesfully updated
     new_line = '\n' # new line variable so that I can use in F strings
     errors = []
@@ -129,14 +130,17 @@ def account_upload_csv():
         csv_file = request.files['file']
         if not csv_file.filename.endswith('.csv'):
             return "Please upload a CSV file.", 400
-
+        
         csv_content = csv_file.read().decode('utf-8')
         csv_data = csv.DictReader(io.StringIO(csv_content))
+        
+        total_rows = sum(1 for _ in csv.DictReader(io.StringIO(csv_content))) # Calculate total rows before loop
+        csv_data = csv.DictReader(io.StringIO(csv_content)) # Read the data again
         
         successful_upserts = 0  # Counter for successful upserts
         request_count = 0  # Counter to track API request counts
         
-        for row in csv_data:
+        for index, row in enumerate(csv_data):
             account_id = row['id']
             crm_id = row['crm_id']
             
@@ -168,6 +172,8 @@ def account_upload_csv():
             if request_count == 600:  # Check if we've hit the rate limit
                 time.sleep(60)  # Sleep for 60 seconds
                 request_count = 0  # Reset the counter
+                
+            session['progress'] = (index + 1) / total_rows * 100    
         
         response_message = []
 
@@ -185,11 +191,34 @@ def account_upload_csv():
     <form action="/account_upload_csv" method="post" enctype="multipart/form-data">
         Upload your CSV: <input type="file" name="file"><br>
         <input type="submit" value="Upload and Process">
+        <progress id="progressBar" max="100" value="0"></progress>
+    <div id="status">0% complete</div>
+    <script>
+    function updateProgress() {
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('progressBar').value = data.progress;
+                document.getElementById('status').innerText = `${data.progress.toFixed(2)}% complete`;
+                if (data.progress < 100) {
+                    setTimeout(updateProgress, 1000);  // check every second
+                } else {
+                    document.getElementById('status').innerText = 'Processing complete!';
+                }
+            });
+    }
+
+    document.querySelector('form').addEventListener('submit', function() {
+        updateProgress(); // Start updating progress when the form is submitted
+    });
+</script>
     </form>
-    '''
+    
+    ''' 
     
 @app.route('/contact_upload_csv', methods=['GET', 'POST'])
 def contact_upload_csv():
+         
     sf_ids = [] #list of Salesforce id's that will be returned that were succesfully updated
     new_line = '\n' # new line variable so that I can use in F strings
     errors = []
@@ -202,10 +231,13 @@ def contact_upload_csv():
         csv_content = csv_file.read().decode('utf-8')
         csv_data = csv.DictReader(io.StringIO(csv_content))
         
+        total_rows = sum(1 for _ in csv.DictReader(io.StringIO(csv_content))) # Calculate total rows before loop
+        csv_data = csv.DictReader(io.StringIO(csv_content)) # Read the data again
+        
         successful_upserts = 0  # Counter for successful upserts
         request_count = 0  # Counter to track API request counts
         
-        for row in csv_data:
+        for index, row in enumerate(csv_data):
             person_id = row['id']
             crm_id = row['crm_id']
             
@@ -238,6 +270,8 @@ def contact_upload_csv():
             if request_count == 600:  # Check if we've hit the rate limit
                 time.sleep(60)  # Sleep for 60 seconds
                 request_count = 0  # Reset the counter
+                
+            session['progress'] = (index + 1) / total_rows * 100     
         
         response_message = []
 
@@ -255,8 +289,34 @@ def contact_upload_csv():
     <form action="/contact_upload_csv" method="post" enctype="multipart/form-data">
         Upload your CSV: <input type="file" name="file"><br>
         <input type="submit" value="Upload and Process">
+        <progress id="progressBar" max="100" value="0"></progress>
+    <div id="status">0% complete</div>
+    <script>
+    function updateProgress() {
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('progressBar').value = data.progress;
+                document.getElementById('status').innerText = `${data.progress.toFixed(2)}% complete`;
+                if (data.progress < 100) {
+                    setTimeout(updateProgress, 1000);  // check every second
+                } else {
+                    document.getElementById('status').innerText = 'Processing complete!';
+                }
+            });
+    }
+
+    document.querySelector('form').addEventListener('submit', function() {
+        updateProgress(); // Start updating progress when the form is submitted
+    });
+</script>
     </form>
+    
     '''    
+
+@app.route('/progress')
+def progress():
+    return jsonify(progress=session.get('progress', 0))
 
 if __name__ == '__main__':
     app.run(port=8000, debug=True)
