@@ -141,7 +141,8 @@ def account_upload_csv():
         request_count = 0  # Counter to track API request counts
         
         for index, row in enumerate(csv_data):
-            account_id = row['id']
+            print(row) #used when I'm getting errors with CSV file
+            account_id = row['\ufeffid'] # '\ufeffid' if the file has an encoding issue
             crm_id = row['crm_id']
             
             # Define the URL and payload for the upsert request
@@ -322,5 +323,5 @@ if __name__ == '__main__':
     app.run(port=8000, debug=True)
     
     
-#cd documents/programming/projects/python/salesloftoathauthorization
+
 
