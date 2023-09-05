@@ -11,7 +11,7 @@ This is a Flask application that automates the process of upserting accounts and
 - Real-time progress tracking
 - Automatic token refresh
 
-## Prerequisites
+## Requirements
 
 - Python 3.x
 - Flask
@@ -73,6 +73,6 @@ The expected CSV format for accounts and contacts should have the following colu
 
 ## Contributing
 
-If you'd like to contribute, please fork the repository and use a feature branch. Pull requests are warmly welcome. Thanks!
+Contributions are welcome! Please feel free to submit a Pull Request. Thanks!
 
 ---
