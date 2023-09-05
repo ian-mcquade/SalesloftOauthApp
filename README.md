@@ -11,7 +11,7 @@ This is a Flask application that automates the process of upserting accounts and
 - Real-time progress tracking
 - Automatic token refresh
 
-## Pre-requisites
+## Prerequisites
 
 - Python 3.x
 - Flask
