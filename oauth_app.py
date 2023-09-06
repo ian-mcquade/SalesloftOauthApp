@@ -140,7 +140,7 @@ def account_upload_csv():
         
         for index, row in enumerate(csv_data):
             print(row) #used when I'm getting errors with CSV file
-            account_id = row['\ufeffid'] # '\ufeffid' if the file has an encoding issue
+            account_id = row['\ufeffid'] # '\ufeffid' if the file has an encoding issue, 'id' if not
             crm_id = row['crm_id']
             
             # Define the URL and payload for the upsert request
